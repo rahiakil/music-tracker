@@ -1,7 +1,7 @@
 # Brishchik Cue Player
 
-Simple stage cue player for Brishchik. Each Tambaku track is a tap target — play one cue at a time.
+Stage cue player for Brishchik / Shurti Natok. Music files sit on the right; drag them into the sequence on the left, reorder as needed, and play one cue at a time.
 
 Live page: https://rahiakil.github.io/music-tracker/
 
-Tracks live in `web/tracks/` as `Track01.mp3` … `Track14.mp3`.
+Tracks live in `web/tracks/`.

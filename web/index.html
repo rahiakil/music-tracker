@@ -17,32 +17,54 @@
       <img class="brand-mark" src="logo.png" alt="Brishchik">
       <div class="brand-copy">
         <p class="brand-name">Brishchik</p>
-        <p class="brand-line">Tambaku · cue player</p>
+        <p class="brand-line">Shurti Natok · cue player</p>
       </div>
     </header>
 
-    <section class="now" aria-live="polite">
-      <p class="now-label">Now playing</p>
-      <h1 id="now-title">Tap a cue</h1>
-      <p id="now-meta" class="now-meta">Ready</p>
-      <div class="progress" aria-hidden="true">
-        <div id="progress-fill" class="progress-fill"></div>
-      </div>
-      <div class="time-row">
-        <span id="time-elapsed">0:00</span>
-        <span id="time-total">0:00</span>
-      </div>
-      <div class="transport">
-        <button id="btn-prev" class="btn-ghost" type="button" aria-label="Previous cue">Prev</button>
-        <button id="btn-play" class="btn-play" type="button" aria-label="Play or pause">Play</button>
-        <button id="btn-next" class="btn-ghost" type="button" aria-label="Next cue">Next</button>
-        <button id="btn-stop" class="btn-ghost" type="button" aria-label="Stop">Stop</button>
-      </div>
-    </section>
+    <div class="workspace">
+      <div class="main-col">
+        <section class="now" aria-live="polite">
+          <p class="now-label">Now playing</p>
+          <h1 id="now-title">Tap a cue</h1>
+          <p id="now-meta" class="now-meta">Ready</p>
+          <div class="progress" aria-hidden="true">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+          <div class="time-row">
+            <span id="time-elapsed">0:00</span>
+            <span id="time-total">0:00</span>
+          </div>
+          <div class="transport">
+            <button id="btn-prev" class="btn-ghost" type="button" aria-label="Previous cue">Prev</button>
+            <button id="btn-play" class="btn-play" type="button" aria-label="Play or pause">Play</button>
+            <button id="btn-next" class="btn-ghost" type="button" aria-label="Next cue">Next</button>
+            <button id="btn-stop" class="btn-ghost" type="button" aria-label="Stop">Stop</button>
+          </div>
+        </section>
 
-    <section class="cues" aria-label="Cue tabs">
-      <div id="cue-tabs" class="cue-tabs" role="tablist"></div>
-    </section>
+        <section class="sequence-panel" aria-label="Play sequence">
+          <div class="panel-head">
+            <div>
+              <h2>Sequence</h2>
+              <p class="hint">Drag files here from the library. Drag rows to reorder.</p>
+            </div>
+            <button id="btn-reset" class="btn-quiet" type="button">Reset order</button>
+          </div>
+          <ol id="sequence" class="sequence"></ol>
+          <p id="sequence-empty" class="empty" hidden>Drop cues here to build the show order.</p>
+        </section>
+      </div>
+
+      <aside class="library-panel" aria-label="Music library">
+        <div class="panel-head">
+          <div>
+            <h2>Music files</h2>
+            <p class="hint">Drag into the sequence</p>
+          </div>
+        </div>
+        <ul id="library" class="library"></ul>
+      </aside>
+    </div>
   </div>
 
   <audio id="player" preload="metadata"></audio>
