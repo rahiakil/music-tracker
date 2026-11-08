@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14080c">
+  <title>Brishchik · Cue Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo.png" type="image/png">
+</head>
+<body>
+  <div class="stage">
+    <header class="brand">
+      <img class="brand-mark" src="logo.png" alt="Brishchik">
+      <div class="brand-copy">
+        <p class="brand-name">Brishchik</p>
+        <p class="brand-line">Tambaku · cue player</p>
+      </div>
+    </header>
+
+    <section class="now" aria-live="polite">
+      <p class="now-label">Now playing</p>
+      <h1 id="now-title">Tap a cue</h1>
+      <p id="now-meta" class="now-meta">Ready</p>
+      <div class="progress" aria-hidden="true">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+      <div class="time-row">
+        <span id="time-elapsed">0:00</span>
+        <span id="time-total">0:00</span>
+      </div>
+      <div class="transport">
+        <button id="btn-prev" class="btn-ghost" type="button" aria-label="Previous cue">Prev</button>
+        <button id="btn-play" class="btn-play" type="button" aria-label="Play or pause">Play</button>
+        <button id="btn-next" class="btn-ghost" type="button" aria-label="Next cue">Next</button>
+        <button id="btn-stop" class="btn-ghost" type="button" aria-label="Stop">Stop</button>
+      </div>
+    </section>
+
+    <section class="cues" aria-label="Cue tabs">
+      <div id="cue-tabs" class="cue-tabs" role="tablist"></div>
+    </section>
+  </div>
+
+  <audio id="player" preload="metadata"></audio>
+  <script src="app.js"></script>
+</body>
+</html>

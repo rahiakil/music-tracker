@@ -1,0 +1,227 @@
+:root {
+  color-scheme: dark;
+  --ink: #f7efe6;
+  --muted: #c9b4a4;
+  --bg: #14080c;
+  --panel: rgba(36, 14, 20, 0.82);
+  --maroon: #7a1f2b;
+  --maroon-deep: #4d1018;
+  --amber: #e39a2b;
+  --amber-hot: #f0b84a;
+  --line: rgba(227, 154, 43, 0.28);
+  --good: #e39a2b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Syne", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(122, 31, 43, 0.55), transparent 60%),
+    radial-gradient(ellipse 70% 45% at 90% 90%, rgba(227, 154, 43, 0.12), transparent 50%),
+    linear-gradient(180deg, #1a0a10 0%, var(--bg) 45%, #0a0507 100%);
+  min-height: 100dvh;
+  line-height: 1.35;
+}
+
+.stage {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 28px 18px 48px;
+  display: grid;
+  gap: 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-mark {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #000;
+  box-shadow: 0 0 0 2px var(--maroon), 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.brand-name {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2.6rem, 9vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+}
+
+.brand-line {
+  margin: 6px 0 0;
+  color: var(--amber);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.now {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 22px 20px 20px;
+  backdrop-filter: blur(10px);
+}
+
+.now-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+#now-title {
+  margin: 8px 0 4px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.now-meta {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.progress {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--maroon), var(--amber));
+  transition: width 0.12s linear;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.transport {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+button {
+  font: inherit;
+  min-height: 54px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  padding: 12px 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+button:active {
+  transform: translateY(2px) scale(0.98);
+}
+
+.btn-play {
+  background: linear-gradient(180deg, var(--amber-hot), var(--amber));
+  color: #1a0a10;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.btn-play.is-playing {
+  background: linear-gradient(180deg, #9a2a38, var(--maroon));
+  color: var(--ink);
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  border-color: var(--line);
+  font-weight: 600;
+}
+
+.cue-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+
+.cue-tab {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  min-height: 72px;
+  display: grid;
+  place-content: center;
+  gap: 2px;
+  font-weight: 700;
+}
+
+.cue-tab small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cue-tab[aria-selected="true"] {
+  background: linear-gradient(160deg, var(--maroon), var(--maroon-deep));
+  border-color: var(--amber);
+  box-shadow: 0 0 0 1px rgba(227, 154, 43, 0.35), 0 10px 28px rgba(122, 31, 43, 0.35);
+}
+
+.cue-tab.is-playing::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber-hot);
+  box-shadow: 0 0 12px var(--amber);
+}
+
+@media (max-width: 480px) {
+  .transport {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .btn-play {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button, .progress-fill { transition: none; }
+}
