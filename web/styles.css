@@ -72,7 +72,7 @@ body {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.9fr);
   gap: 18px;
   align-items: start;
 }
@@ -104,9 +104,9 @@ body {
 #now-title {
   margin: 8px 0 4px;
   font-family: "Cormorant Garamond", serif;
-  font-size: clamp(1.8rem, 5vw, 2.6rem);
-  font-weight: 600;
-  line-height: 1.05;
+  font-size: clamp(3rem, 10vw, 4.4rem);
+  font-weight: 700;
+  line-height: 0.9;
 }
 
 .now-meta {
@@ -208,101 +208,108 @@ button:active {
   white-space: nowrap;
 }
 
-.sequence,
-.library {
+.sequence {
   list-style: none;
   margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-  min-height: 64px;
-}
-
-.sequence.is-drop-target,
-.library-panel.is-drop-target {
-  outline: 2px dashed var(--amber);
-  outline-offset: 4px;
-}
-
-.track-row,
-.lib-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
-  align-items: center;
-  min-height: 56px;
-  padding: 10px 12px;
-  border-radius: 14px;
+  min-height: 72px;
+  border-radius: 16px;
+  border: 1px dashed transparent;
+}
+
+.sequence.is-drop-target {
+  border-color: var(--amber);
+  background: rgba(227, 154, 43, 0.08);
+}
+
+.cue-num {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.cue-num.drag-over .num-btn {
+  border-color: var(--amber-hot);
+  box-shadow: 0 0 0 2px rgba(227, 154, 43, 0.35);
+}
+
+.num-btn {
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border-radius: 12px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: grab;
-  user-select: none;
 }
 
-.track-row:active,
-.lib-row:active {
+.num-btn:active {
   cursor: grabbing;
 }
 
-.track-row.is-active {
+.cue-num.is-active .num-btn {
   background: linear-gradient(160deg, var(--maroon), var(--maroon-deep));
   border-color: var(--amber);
-  box-shadow: 0 0 0 1px rgba(227, 154, 43, 0.35);
 }
 
-.track-row.is-playing .row-title::after {
+.cue-num.is-playing .num-btn::after {
   content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-left: 8px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--amber-hot);
-  box-shadow: 0 0 12px var(--amber);
-  vertical-align: middle;
+  box-shadow: 0 0 10px var(--amber);
 }
 
-.track-row.drag-over {
-  border-color: var(--amber-hot);
-  background: rgba(227, 154, 43, 0.12);
-}
-
-.row-index,
-.row-badge {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  background: rgba(0, 0, 0, 0.28);
-  color: var(--amber);
-}
-
-.row-title {
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.row-sub {
-  margin-top: 2px;
+.remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #1a0a10;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  opacity: 0;
 }
 
-.row-actions {
-  display: flex;
-  gap: 6px;
+.cue-num:hover .remove-btn,
+.cue-num:focus-within .remove-btn {
+  opacity: 1;
 }
 
-.icon-btn {
-  min-height: 40px;
-  min-width: 40px;
-  padding: 0 10px;
-  background: rgba(0, 0, 0, 0.22);
+.library {
+  display: grid;
+  gap: 8px;
+}
+
+.music-btn {
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
   color: var(--ink);
-  border-color: transparent;
+  border-color: var(--line);
   font-weight: 700;
+  cursor: grab;
+}
+
+.music-btn:active {
+  cursor: grabbing;
 }
 
 .empty {
@@ -314,10 +321,6 @@ button:active {
 @media (max-width: 860px) {
   .workspace {
     grid-template-columns: 1fr;
-  }
-
-  .library-panel {
-    order: 3;
   }
 }
 
@@ -332,6 +335,10 @@ button:active {
 
   .panel-head {
     flex-direction: column;
+  }
+
+  .remove-btn {
+    opacity: 1;
   }
 }
 
