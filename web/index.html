@@ -34,11 +34,10 @@
             <span id="time-elapsed">0:00</span>
             <span id="time-total">0:00</span>
           </div>
-          <div class="transport">
+          <div class="transport transport-3">
             <button id="btn-prev" class="btn-ghost" type="button" aria-label="Previous cue">Prev</button>
             <button id="btn-play" class="btn-play" type="button" aria-label="Play or pause">Play</button>
             <button id="btn-next" class="btn-ghost" type="button" aria-label="Next cue">Next</button>
-            <button id="btn-stop" class="btn-ghost" type="button" aria-label="Stop">Stop</button>
           </div>
         </section>
 
@@ -46,12 +45,11 @@
           <div class="panel-head">
             <div>
               <h2>Sequence</h2>
-              <p class="hint">Cue number + small file name. Drag music in, or reorder here.</p>
+              <p class="hint">9 fixed cues. Drop a music file onto a cue to swap it into that slot.</p>
             </div>
             <button id="btn-revert" class="btn-quiet" type="button">Revert</button>
           </div>
           <ol id="sequence" class="sequence"></ol>
-          <p id="sequence-empty" class="empty" hidden>Drop music here.</p>
         </section>
       </div>
 
@@ -59,7 +57,7 @@
         <div class="panel-head">
           <div>
             <h2>Music files</h2>
-            <p class="hint">Active cue lights up the matching file</p>
+            <p class="hint">Drag onto a cue tile to place it there</p>
           </div>
         </div>
         <div id="library" class="library"></div>
