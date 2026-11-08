@@ -26,7 +26,7 @@ const playBtn = document.getElementById("btn-play");
 const prevBtn = document.getElementById("btn-prev");
 const nextBtn = document.getElementById("btn-next");
 const stopBtn = document.getElementById("btn-stop");
-const resetBtn = document.getElementById("btn-reset");
+const revertBtn = document.getElementById("btn-revert");
 
 const byId = Object.fromEntries(LIBRARY.map((t) => [t.id, t]));
 
@@ -61,16 +61,38 @@ function currentTrack() {
   return byId[sequence[index]] || null;
 }
 
+function activeTrackId() {
+  return sequence[index] || null;
+}
+
 function renderLibrary() {
   libraryEl.innerHTML = "";
+  const activeId = activeTrackId();
+  const playing = !player.paused && !player.ended && !!player.src;
+
   LIBRARY.forEach((track) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "music-btn";
     btn.draggable = true;
     btn.dataset.trackId = track.id;
-    btn.textContent = track.label;
-    btn.title = "Drag into sequence, or click to add";
+
+    const isActive = track.id === activeId;
+    if (isActive) btn.classList.add("is-linked");
+    if (isActive && playing) btn.classList.add("is-playing");
+
+    const cueLabel = isActive ? `<span class="link-badge">Cue ${index + 1}</span>` : "";
+    btn.innerHTML = `
+      <span class="music-btn-main">
+        <span class="music-btn-name">${track.label}</span>
+        <span class="music-btn-file">${track.file}</span>
+      </span>
+      ${cueLabel}
+    `;
+    btn.title = isActive
+      ? `Cue ${index + 1} means this file`
+      : "Drag into sequence, or click to add";
+
     btn.addEventListener("dragstart", (e) => onLibraryDragStart(e, track.id));
     btn.addEventListener("dragend", clearDragState);
     btn.addEventListener("click", () => addToSequence(track.id));
@@ -83,21 +105,25 @@ function renderSequence() {
   emptyEl.hidden = sequence.length > 0;
 
   sequence.forEach((id, i) => {
-    if (!byId[id]) return;
+    const track = byId[id];
+    if (!track) return;
     const li = document.createElement("li");
-    li.className = "cue-num";
+    li.className = "cue-item";
     if (i === index) li.classList.add("is-active");
     if (i === index && !player.paused && !player.ended) li.classList.add("is-playing");
     li.draggable = true;
     li.dataset.index = String(i);
     li.dataset.trackId = id;
 
-    const numBtn = document.createElement("button");
-    numBtn.type = "button";
-    numBtn.className = "num-btn";
-    numBtn.textContent = String(i + 1);
-    numBtn.setAttribute("aria-label", `Cue ${i + 1}`);
-    numBtn.addEventListener("click", () => selectTrack(i, true));
+    const cueBtn = document.createElement("button");
+    cueBtn.type = "button";
+    cueBtn.className = "cue-btn";
+    cueBtn.innerHTML = `
+      <span class="cue-num">${i + 1}</span>
+      <span class="cue-name">${track.label}</span>
+    `;
+    cueBtn.setAttribute("aria-label", `Cue ${i + 1}: ${track.label}`);
+    cueBtn.addEventListener("click", () => selectTrack(i, true));
 
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
@@ -109,7 +135,7 @@ function renderSequence() {
       removeFromSequence(i);
     });
 
-    li.append(numBtn, removeBtn);
+    li.append(cueBtn, removeBtn);
     li.addEventListener("dragstart", (e) => onSequenceDragStart(e, i));
     li.addEventListener("dragend", clearDragState);
     li.addEventListener("dragover", (e) => onSequenceDragOver(e, i));
@@ -117,6 +143,8 @@ function renderSequence() {
     li.addEventListener("drop", (e) => onSequenceDrop(e, i));
     sequenceEl.appendChild(li);
   });
+
+  renderLibrary();
 }
 
 function onLibraryDragStart(e, trackId) {
@@ -266,6 +294,15 @@ function stopPlayback() {
   updatePlayButton();
 }
 
+function revertSequence() {
+  sequence = [...DEFAULT_SEQUENCE];
+  index = 0;
+  saveSequence();
+  renderSequence();
+  selectTrack(0, false);
+  metaEl.textContent = "Reverted";
+}
+
 playBtn.addEventListener("click", () => {
   if (!sequence.length) {
     metaEl.textContent = "Add music first";
@@ -292,14 +329,7 @@ nextBtn.addEventListener("click", () => {
 });
 
 stopBtn.addEventListener("click", stopPlayback);
-
-resetBtn.addEventListener("click", () => {
-  sequence = [...DEFAULT_SEQUENCE];
-  index = 0;
-  saveSequence();
-  renderSequence();
-  selectTrack(0, false);
-});
+revertBtn.addEventListener("click", revertSequence);
 
 player.addEventListener("play", () => {
   metaEl.textContent = "Playing";
@@ -334,10 +364,10 @@ player.addEventListener("error", () => {
   updatePlayButton();
 });
 
-renderLibrary();
 renderSequence();
 if (sequence.length) selectTrack(0, false);
 else {
   titleEl.textContent = "—";
   metaEl.textContent = "Empty";
+  renderLibrary();
 }

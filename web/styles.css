@@ -212,9 +212,8 @@ button:active {
   list-style: none;
   margin: 0;
   padding: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  display: grid;
+  gap: 8px;
   min-height: 72px;
   border-radius: 16px;
   border: 1px dashed transparent;
@@ -225,45 +224,70 @@ button:active {
   background: rgba(227, 154, 43, 0.08);
 }
 
-.cue-num {
+.cue-item {
   position: relative;
-  display: grid;
-  place-items: center;
 }
 
-.cue-num.drag-over .num-btn {
+.cue-item.drag-over .cue-btn {
   border-color: var(--amber-hot);
   box-shadow: 0 0 0 2px rgba(227, 154, 43, 0.35);
 }
 
-.num-btn {
-  width: 48px;
-  height: 48px;
-  min-height: 48px;
-  padding: 0;
-  border-radius: 12px;
+.cue-btn {
+  width: 100%;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 14px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.04);
   color: var(--ink);
-  font-size: 0.95rem;
-  font-weight: 700;
+  text-align: left;
   cursor: grab;
 }
 
-.num-btn:active {
+.cue-btn:active {
   cursor: grabbing;
 }
 
-.cue-num.is-active .num-btn {
+.cue-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--amber);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.cue-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cue-item.is-active .cue-btn {
   background: linear-gradient(160deg, var(--maroon), var(--maroon-deep));
   border-color: var(--amber);
 }
 
-.cue-num.is-playing .num-btn::after {
+.cue-item.is-active .cue-name {
+  color: var(--ink);
+}
+
+.cue-item.is-playing .cue-btn::after {
   content: "";
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 10px;
+  right: 14px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -288,8 +312,8 @@ button:active {
   opacity: 0;
 }
 
-.cue-num:hover .remove-btn,
-.cue-num:focus-within .remove-btn {
+.cue-item:hover .remove-btn,
+.cue-item:focus-within .remove-btn {
   opacity: 1;
 }
 
@@ -300,6 +324,10 @@ button:active {
 
 .music-btn {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   text-align: left;
   background: rgba(255, 255, 255, 0.04);
   color: var(--ink);
@@ -310,6 +338,51 @@ button:active {
 
 .music-btn:active {
   cursor: grabbing;
+}
+
+.music-btn-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.music-btn-name {
+  font-size: 0.95rem;
+}
+
+.music-btn-file {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-btn.is-linked {
+  background: linear-gradient(160deg, rgba(122, 31, 43, 0.95), rgba(77, 16, 24, 0.95));
+  border-color: var(--amber);
+  box-shadow: 0 0 0 1px rgba(227, 154, 43, 0.35), 0 10px 24px rgba(122, 31, 43, 0.28);
+}
+
+.music-btn.is-linked .music-btn-file {
+  color: #f0d3b0;
+}
+
+.music-btn.is-playing {
+  box-shadow: 0 0 0 1px rgba(240, 184, 74, 0.55), 0 0 24px rgba(227, 154, 43, 0.28);
+}
+
+.link-badge {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--amber);
+  color: #1a0a10;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .empty {
@@ -339,6 +412,11 @@ button:active {
 
   .remove-btn {
     opacity: 1;
+  }
+
+  .music-btn {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
