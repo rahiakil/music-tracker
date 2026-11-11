@@ -20,7 +20,7 @@ const libraryEl = document.getElementById("library");
 const sequenceEl = document.getElementById("sequence");
 const titleEl = document.getElementById("now-title");
 const metaEl = document.getElementById("now-meta");
-const fillEl = document.getElementById("progress-fill");
+const seekInput = document.getElementById("seek");
 const elapsedEl = document.getElementById("time-elapsed");
 const totalEl = document.getElementById("time-total");
 const playBtn = document.getElementById("btn-play");
@@ -42,6 +42,7 @@ let dragPayload = null;
 let fadeRaf = 0;
 let fading = null;
 let targetVolume = loadVolume();
+let seeking = false;
 
 function loadSequence() {
   try {
@@ -361,17 +362,47 @@ function fadeOut() {
   });
 }
 
+function trackDuration() {
+  const live = player.duration;
+  if (Number.isFinite(live) && live > 0) return live;
+  return durations[activeTrackId()] || 0;
+}
+
+function syncSeekUi(seconds = player.currentTime || 0) {
+  const dur = trackDuration();
+  if (!seekInput) return;
+  seekInput.max = dur ? String(dur) : "0";
+  if (!seeking) seekInput.value = String(Math.min(dur || 0, Math.max(0, seconds)));
+  const pct = dur ? Math.max(0, Math.min(100, (Number(seekInput.value) / dur) * 100)) : 0;
+  seekInput.style.setProperty("--seek-pct", `${pct}%`);
+  elapsedEl.textContent = formatTime(Number(seekInput.value) || 0);
+  if (dur) totalEl.textContent = formatTime(dur);
+}
+
+function seekTo(seconds) {
+  const dur = trackDuration();
+  if (!dur) return;
+  const next = Math.max(0, Math.min(dur, seconds));
+  player.currentTime = next;
+  syncSeekUi(next);
+}
+
 function selectTrack(i, autoplay) {
   stopFade();
+  seeking = false;
   setVolume(targetVolume, { syncUi: true });
   index = Math.max(0, Math.min(sequence.length - 1, i));
   const track = currentTrack();
   if (!track) return;
   syncNowLabel();
   metaEl.textContent = autoplay ? "Loading…" : "Selected";
-  fillEl.style.width = "0%";
   elapsedEl.textContent = "0:00";
   totalEl.textContent = formatTime(durations[track.id]);
+  if (seekInput) {
+    seekInput.value = "0";
+    seekInput.max = String(durations[track.id] || 0);
+    seekInput.style.setProperty("--seek-pct", "0%");
+  }
   player.src = track.src;
   player.load();
   renderSequence();
@@ -442,7 +473,7 @@ player.addEventListener("pause", () => {
 
 player.addEventListener("ended", () => {
   metaEl.textContent = "Done";
-  fillEl.style.width = "100%";
+  syncSeekUi(trackDuration());
   updatePlayButton();
 });
 
@@ -452,31 +483,55 @@ player.addEventListener("loadedmetadata", () => {
     durations[track.id] = player.duration;
     updateDurationDisplays(track.id);
   }
-  totalEl.textContent = formatTime(player.duration);
+  syncSeekUi(player.currentTime || 0);
   if (metaEl.textContent === "Loading…") metaEl.textContent = "Ready";
 });
 
 player.addEventListener("durationchange", () => {
   if (Number.isFinite(player.duration) && player.duration > 0) {
-    totalEl.textContent = formatTime(player.duration);
     const track = currentTrack();
     if (track) {
       durations[track.id] = player.duration;
       updateDurationDisplays(track.id);
     }
+    syncSeekUi(player.currentTime || 0);
   }
 });
 
 player.addEventListener("timeupdate", () => {
-  const dur = player.duration || durations[activeTrackId()] || 0;
-  const cur = player.currentTime || 0;
-  fillEl.style.width = dur ? `${(cur / dur) * 100}%` : "0%";
-  elapsedEl.textContent = formatTime(cur);
+  if (!seeking) syncSeekUi(player.currentTime || 0);
 });
 
 player.addEventListener("error", () => {
   metaEl.textContent = "Load error";
   updatePlayButton();
+});
+
+seekInput?.addEventListener("pointerdown", () => {
+  seeking = true;
+});
+
+seekInput?.addEventListener("pointerup", () => {
+  seeking = false;
+  seekTo(Number(seekInput.value) || 0);
+});
+
+seekInput?.addEventListener("pointercancel", () => {
+  seeking = false;
+});
+
+seekInput?.addEventListener("input", () => {
+  seeking = true;
+  const value = Number(seekInput.value) || 0;
+  const dur = trackDuration();
+  const pct = dur ? Math.max(0, Math.min(100, (value / dur) * 100)) : 0;
+  seekInput.style.setProperty("--seek-pct", `${pct}%`);
+  elapsedEl.textContent = formatTime(value);
+});
+
+seekInput?.addEventListener("change", () => {
+  seeking = false;
+  seekTo(Number(seekInput.value) || 0);
 });
 
 syncVolumeUi(targetVolume);
