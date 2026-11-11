@@ -140,13 +140,22 @@ body {
 
 .transport {
   display: grid;
-  grid-template-columns: 1fr 1.4fr 1fr 1fr;
-  gap: 10px;
-  margin-top: 18px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.transport-3 {
-  grid-template-columns: 1fr 1.6fr 1fr;
+.btn-transport {
+  min-height: 72px;
+  padding: 16px 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.btn-play.btn-transport {
+  font-size: 1.15rem;
+  min-height: 72px;
 }
 
 .panel-head {
@@ -205,6 +214,12 @@ button:active {
   color: var(--ink);
   border-color: var(--line);
   font-weight: 600;
+}
+
+.btn-transport.is-fading {
+  border-color: var(--amber-hot);
+  box-shadow: 0 0 0 2px rgba(227, 154, 43, 0.35);
+  color: var(--amber-hot);
 }
 
 .btn-quiet {
@@ -420,14 +435,35 @@ button:active {
   }
 }
 
+@media (max-width: 720px) {
+  .transport {
+    grid-template-columns: 1fr 1.4fr 1fr;
+  }
+
+  .btn-play {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  #btn-fade-in,
+  #btn-fade-out {
+    grid-column: span 1;
+  }
+}
+
 @media (max-width: 480px) {
-  .transport,
-  .transport-3 {
+  .transport {
     grid-template-columns: 1fr 1fr;
   }
 
   .btn-play {
     grid-column: 1 / -1;
+    grid-row: auto;
+    min-height: 80px;
+  }
+
+  .btn-transport {
+    min-height: 68px;
   }
 
   .panel-head {

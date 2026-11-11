@@ -25,14 +25,19 @@ const totalEl = document.getElementById("time-total");
 const playBtn = document.getElementById("btn-play");
 const prevBtn = document.getElementById("btn-prev");
 const nextBtn = document.getElementById("btn-next");
+const fadeInBtn = document.getElementById("btn-fade-in");
+const fadeOutBtn = document.getElementById("btn-fade-out");
 const revertBtn = document.getElementById("btn-revert");
 
 const byId = Object.fromEntries(LIBRARY.map((t) => [t.id, t]));
 const durations = Object.fromEntries(LIBRARY.map((t) => [t.id, null]));
+const FADE_MS = 3000;
 
 let sequence = loadSequence();
 let index = 0;
 let dragPayload = null;
+let fadeRaf = 0;
+let fading = null;
 
 function loadSequence() {
   try {
@@ -253,7 +258,87 @@ function syncNowLabel() {
   titleEl.textContent = String(index + 1);
 }
 
+function stopFade() {
+  if (fadeRaf) cancelAnimationFrame(fadeRaf);
+  fadeRaf = 0;
+  fading = null;
+  fadeInBtn?.classList.remove("is-fading");
+  fadeOutBtn?.classList.remove("is-fading");
+}
+
+function setVolume(level) {
+  player.volume = Math.max(0, Math.min(1, level));
+}
+
+function runFade({ from, to, label, onDone }) {
+  stopFade();
+  fading = label;
+  if (label === "in") fadeInBtn?.classList.add("is-fading");
+  if (label === "out") fadeOutBtn?.classList.add("is-fading");
+  setVolume(from);
+  const started = performance.now();
+  const tick = (now) => {
+    const t = Math.min(1, (now - started) / FADE_MS);
+    setVolume(from + (to - from) * t);
+    if (t < 1) {
+      fadeRaf = requestAnimationFrame(tick);
+      return;
+    }
+    setVolume(to);
+    fading = null;
+    fadeInBtn?.classList.remove("is-fading");
+    fadeOutBtn?.classList.remove("is-fading");
+    fadeRaf = 0;
+    if (onDone) onDone();
+  };
+  fadeRaf = requestAnimationFrame(tick);
+}
+
+async function fadeIn() {
+  if (!player.src) selectTrack(index, false);
+  stopFade();
+  setVolume(0);
+  metaEl.textContent = "Fading in…";
+  try {
+    await player.play();
+  } catch {
+    metaEl.textContent = "Tap Fade in again";
+    setVolume(1);
+    return;
+  }
+  runFade({
+    from: 0,
+    to: 1,
+    label: "in",
+    onDone: () => {
+      metaEl.textContent = "Playing";
+    },
+  });
+}
+
+function fadeOut() {
+  if (!player.src || player.paused) {
+    metaEl.textContent = "Nothing playing";
+    return;
+  }
+  const from = player.volume > 0 ? player.volume : 1;
+  metaEl.textContent = "Fading out…";
+  runFade({
+    from,
+    to: 0,
+    label: "out",
+    onDone: () => {
+      player.pause();
+      setVolume(1);
+      metaEl.textContent = "Faded out";
+      updatePlayButton();
+    },
+  });
+}
+
 function selectTrack(i, autoplay) {
+  stopFade();
+  setVolume(1);
   index = Math.max(0, Math.min(sequence.length - 1, i));
   const track = currentTrack();
   if (!track) return;
@@ -291,6 +376,8 @@ function revertSequence() {
 }
 
 playBtn.addEventListener("click", () => {
+  stopFade();
+  setVolume(1);
   if (!player.src) selectTrack(index, false);
   if (player.paused) {
     player.play().catch(() => {
@@ -303,6 +390,12 @@ playBtn.addEventListener("click", () => {
 
 prevBtn.addEventListener("click", () => selectTrack(index - 1, true));
 nextBtn.addEventListener("click", () => selectTrack(index + 1, true));
+fadeInBtn.addEventListener("click", () => {
+  fadeIn();
+});
+fadeOutBtn.addEventListener("click", () => {
+  fadeOut();
+});
 revertBtn.addEventListener("click", revertSequence);
 
 player.addEventListener("play", () => {
