@@ -12,6 +12,7 @@ const LIBRARY = [
 
 const DEFAULT_SEQUENCE = LIBRARY.map((t) => t.id);
 const STORAGE_KEY = "brishchik-sequence-v3";
+const VOLUME_KEY = "brishchik-volume-v1";
 const SLOT_COUNT = 9;
 
 const player = document.getElementById("player");
@@ -28,6 +29,8 @@ const nextBtn = document.getElementById("btn-next");
 const fadeInBtn = document.getElementById("btn-fade-in");
 const fadeOutBtn = document.getElementById("btn-fade-out");
 const revertBtn = document.getElementById("btn-revert");
+const volumeInput = document.getElementById("volume");
+const volumeValue = document.getElementById("volume-value");
 
 const byId = Object.fromEntries(LIBRARY.map((t) => [t.id, t]));
 const durations = Object.fromEntries(LIBRARY.map((t) => [t.id, null]));
@@ -38,6 +41,7 @@ let index = 0;
 let dragPayload = null;
 let fadeRaf = 0;
 let fading = null;
+let targetVolume = loadVolume();
 
 function loadSequence() {
   try {
@@ -258,6 +262,26 @@ function syncNowLabel() {
   titleEl.textContent = String(index + 1);
 }
 
+function loadVolume() {
+  try {
+    const raw = Number(localStorage.getItem(VOLUME_KEY));
+    if (Number.isFinite(raw)) return Math.max(0, Math.min(1, raw));
+  } catch {
+    /* keep default */
+  }
+  return 1;
+}
+
+function saveVolume() {
+  localStorage.setItem(VOLUME_KEY, String(targetVolume));
+}
+
+function syncVolumeUi(level = targetVolume) {
+  const pct = Math.round(Math.max(0, Math.min(1, level)) * 100);
+  if (volumeInput) volumeInput.value = String(pct);
+  if (volumeValue) volumeValue.textContent = `${pct}%`;
+}
+
 function stopFade() {
   if (fadeRaf) cancelAnimationFrame(fadeRaf);
   fadeRaf = 0;
@@ -266,8 +290,9 @@ function stopFade() {
   fadeOutBtn?.classList.remove("is-fading");
 }
 
-function setVolume(level) {
+function setVolume(level, { syncUi = false } = {}) {
   player.volume = Math.max(0, Math.min(1, level));
+  if (syncUi) syncVolumeUi(player.volume);
 }
 
 function runFade({ from, to, label, onDone }) {
@@ -303,12 +328,12 @@ async function fadeIn() {
     await player.play();
   } catch {
     metaEl.textContent = "Tap Fade in again";
-    setVolume(1);
+    setVolume(targetVolume, { syncUi: true });
     return;
   }
   runFade({
     from: 0,
-    to: 1,
+    to: targetVolume,
     label: "in",
     onDone: () => {
       metaEl.textContent = "Playing";
@@ -321,7 +346,7 @@ function fadeOut() {
     metaEl.textContent = "Nothing playing";
     return;
   }
-  const from = player.volume > 0 ? player.volume : 1;
+  const from = player.volume > 0 ? player.volume : targetVolume;
   metaEl.textContent = "Fading out…";
   runFade({
     from,
@@ -329,7 +354,7 @@ function fadeOut() {
     label: "out",
     onDone: () => {
       player.pause();
-      setVolume(1);
+      setVolume(targetVolume, { syncUi: true });
       metaEl.textContent = "Faded out";
       updatePlayButton();
     },
@@ -338,7 +363,7 @@ function fadeOut() {
 
 function selectTrack(i, autoplay) {
   stopFade();
-  setVolume(1);
+  setVolume(targetVolume, { syncUi: true });
   index = Math.max(0, Math.min(sequence.length - 1, i));
   const track = currentTrack();
   if (!track) return;
@@ -377,7 +402,7 @@ function revertSequence() {
 
 playBtn.addEventListener("click", () => {
   stopFade();
-  setVolume(1);
+  setVolume(targetVolume, { syncUi: true });
   if (!player.src) selectTrack(index, false);
   if (player.paused) {
     player.play().catch(() => {
@@ -397,6 +422,13 @@ fadeOutBtn.addEventListener("click", () => {
   fadeOut();
 });
 revertBtn.addEventListener("click", revertSequence);
+
+volumeInput?.addEventListener("input", () => {
+  stopFade();
+  targetVolume = Math.max(0, Math.min(1, Number(volumeInput.value) / 100));
+  setVolume(targetVolume, { syncUi: true });
+  saveVolume();
+});
 
 player.addEventListener("play", () => {
   metaEl.textContent = "Playing";
@@ -447,6 +479,8 @@ player.addEventListener("error", () => {
   updatePlayButton();
 });
 
+syncVolumeUi(targetVolume);
+setVolume(targetVolume);
 preloadDurations();
 renderSequence();
 selectTrack(0, false);
