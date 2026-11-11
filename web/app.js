@@ -43,6 +43,8 @@ let fadeRaf = 0;
 let fading = null;
 let targetVolume = loadVolume();
 let seeking = false;
+let playRequest = 0;
+let suppressCueClick = false;
 
 function loadSequence() {
   try {
@@ -175,11 +177,27 @@ function renderSequence() {
       <span class="cue-dur">${formatTime(durations[track.id])}</span>
     `;
     cueBtn.setAttribute("aria-label", `Cue ${i + 1}: ${track.file}`);
-    cueBtn.addEventListener("click", () => selectTrack(i, true));
+    cueBtn.addEventListener("click", (event) => {
+      if (suppressCueClick) {
+        event.preventDefault();
+        suppressCueClick = false;
+        return;
+      }
+      selectTrack(i, true);
+    });
 
     li.append(cueBtn);
-    li.addEventListener("dragstart", (e) => onSequenceDragStart(e, i));
-    li.addEventListener("dragend", clearDragState);
+    li.addEventListener("dragstart", (e) => {
+      suppressCueClick = true;
+      onSequenceDragStart(e, i);
+    });
+    li.addEventListener("dragend", () => {
+      clearDragState();
+      // Keep the synthetic click after a drag from starting audio.
+      setTimeout(() => {
+        suppressCueClick = false;
+      }, 0);
+    });
     li.addEventListener("dragover", (e) => onSequenceDragOver(e, i));
     li.addEventListener("dragleave", () => li.classList.remove("drag-over"));
     li.addEventListener("drop", (e) => onSequenceDrop(e, i));
@@ -387,6 +405,40 @@ function seekTo(seconds) {
   syncSeekUi(next);
 }
 
+function waitForCanPlay() {
+  if (player.readyState >= 2) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const onReady = () => {
+      cleanup();
+      resolve();
+    };
+    const onError = () => {
+      cleanup();
+      reject(new Error("load"));
+    };
+    const cleanup = () => {
+      player.removeEventListener("canplay", onReady);
+      player.removeEventListener("loadeddata", onReady);
+      player.removeEventListener("error", onError);
+    };
+    player.addEventListener("canplay", onReady, { once: true });
+    player.addEventListener("loadeddata", onReady, { once: true });
+    player.addEventListener("error", onError, { once: true });
+  });
+}
+
+async function startPlayback(requestId) {
+  try {
+    await waitForCanPlay();
+    if (requestId !== playRequest) return;
+    await player.play();
+  } catch {
+    if (requestId !== playRequest) return;
+    metaEl.textContent = "Tap Play";
+    updatePlayButton();
+  }
+}
+
 function selectTrack(i, autoplay) {
   stopFade();
   seeking = false;
@@ -394,6 +446,7 @@ function selectTrack(i, autoplay) {
   index = Math.max(0, Math.min(sequence.length - 1, i));
   const track = currentTrack();
   if (!track) return;
+  const requestId = ++playRequest;
   syncNowLabel();
   metaEl.textContent = autoplay ? "Loading…" : "Selected";
   elapsedEl.textContent = "0:00";
@@ -403,15 +456,12 @@ function selectTrack(i, autoplay) {
     seekInput.max = String(durations[track.id] || 0);
     seekInput.style.setProperty("--seek-pct", "0%");
   }
+  player.pause();
   player.src = track.src;
   player.load();
   renderSequence();
   updatePlayButton(false);
-  if (autoplay) {
-    player.play().catch(() => {
-      metaEl.textContent = "Tap Play";
-    });
-  }
+  if (autoplay) startPlayback(requestId);
 }
 
 function updatePlayButton(rerender = true) {
