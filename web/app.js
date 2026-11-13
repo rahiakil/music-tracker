@@ -3,11 +3,11 @@ const LIBRARY = [
   { id: "2-Doorbell1", file: "2-Doorbell1.mp3", label: "Doorbell1" },
   { id: "3-Doorbell2", file: "3-Doorbell2.mp3", label: "Doorbell2" },
   { id: "4-Doorbellmulti", file: "4-Doorbellmulti.mp3", label: "Doorbellmulti" },
-  { id: "5-Track02", file: "5-Track02.mp3", label: "Track02" },
-  { id: "6-Track03", file: "6-Track03.mp3", label: "Track03" },
-  { id: "7-Track04", file: "7-Track04.mp3", label: "Track04" },
-  { id: "8-mixTrack05", file: "8-mixTrack05.mp3", label: "mixTrack05" },
-  { id: "9-Track07", file: "9-Track07.mp3", label: "Track07" },
+  { id: "5-Track02", file: "5-Track02.mp3", label: "Track 02" },
+  { id: "6-Track03", file: "6-Track03.mp3", label: "Track 03" },
+  { id: "7-Track04", file: "7-Track04.mp3", label: "Track 04" },
+  { id: "8-mixTrack05", file: "8-mixTrack05.mp3", label: "mix Track 05" },
+  { id: "9-Track07", file: "9-Track07.mp3", label: "Track 07" },
 ].map((t) => ({ ...t, src: `tracks/${t.file}` }));
 
 const DEFAULT_SEQUENCE = LIBRARY.map((t) => t.id);
