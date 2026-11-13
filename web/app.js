@@ -2,7 +2,6 @@ const LIBRARY = [
   { id: "1-OpeningTrack01", file: "1-OpeningTrack01.mp3", label: "OpeningTrack01" },
   { id: "2-Doorbell1", file: "2-Doorbell1.mp3", label: "Doorbell1" },
   { id: "3-Doorbell2", file: "3-Doorbell2.mp3", label: "Doorbell2" },
-  { id: "4-Doorbellmulti", file: "4-Doorbellmulti.mp3", label: "Doorbellmulti" },
   { id: "5-Track02", file: "5-Track02.mp3", label: "Track 02" },
   { id: "6-Track03", file: "6-Track03.mp3", label: "Track 03" },
   { id: "7-Track04", file: "7-Track04.mp3", label: "Track 04" },
@@ -11,9 +10,9 @@ const LIBRARY = [
 ].map((t) => ({ ...t, src: `tracks/${t.file}` }));
 
 const DEFAULT_SEQUENCE = LIBRARY.map((t) => t.id);
-const STORAGE_KEY = "brishchik-sequence-v3";
+const STORAGE_KEY = "brishchik-sequence-v4";
 const VOLUME_KEY = "brishchik-volume-v1";
-const SLOT_COUNT = 9;
+const SLOT_COUNT = 8;
 
 const player = document.getElementById("player");
 const libraryEl = document.getElementById("library");
